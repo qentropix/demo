@@ -12,6 +12,8 @@ model Customer {
   name      String
   contact   String?
   email     String?
+  username  String?  @unique
+  password  String?
   builds    Build[]
   createdAt DateTime @default(now())
 }
