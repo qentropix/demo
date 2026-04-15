@@ -25,8 +25,12 @@ export default function Dashboard() {
 
   async function fetchBuilds() {
     const res = await fetch('/api/builds', { credentials: 'include' })
+    if (res.status === 401) {
+      window.location.href = '/login'
+      return
+    }
     const data = await res.json()
-    setBuilds(data)
+    setBuilds(Array.isArray(data) ? data : [])
     setLoading(false)
   }
 
