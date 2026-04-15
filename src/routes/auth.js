@@ -6,13 +6,16 @@ const router = Router()
 const DEMO_USER = process.env.DEMO_USERNAME || 'demo'
 const DEMO_PASS = process.env.DEMO_PASSWORD || 'Qentro!!1'
 
-// Parse CUSTOMER_LOGINS="midwest:midwest123,telecom:telecom123"
+// Parse CUSTOMER_LOGINS="midwest:midwest123:1,telecom:telecom123:2,medical:medical123:3"
+// Format: username:password:customerId
 function parseCustomerLogins() {
   const raw = process.env.CUSTOMER_LOGINS || ''
   const map = {}
   raw.split(',').forEach(entry => {
-    const [username, password] = entry.trim().split(':')
-    if (username && password) map[username] = password
+    const parts = entry.trim().split(':')
+    if (parts.length >= 3) {
+      map[parts[0]] = { password: parts[1], customerId: parseInt(parts[2]) }
+    }
   })
   return map
 }
@@ -35,19 +38,15 @@ router.post('/login', async (req, res) => {
 
   // Customer login
   const customerLogins = parseCustomerLogins()
-  if (customerLogins[username] && customerLogins[username] === password) {
-    // Find customer by matching username to customer name (case-insensitive partial)
-    const customers = await prisma.customer.findMany()
-    const match = customers.find(c =>
-      c.name.toLowerCase().includes(username.toLowerCase()) ||
-      username.toLowerCase().includes(c.name.toLowerCase().split(' ')[0].toLowerCase())
-    )
-    if (!match) return res.status(401).json({ error: 'Customer account not configured' })
+  const entry = customerLogins[username]
+  if (entry && entry.password === password) {
+    const customer = await prisma.customer.findUnique({ where: { id: entry.customerId } })
+    if (!customer) return res.status(401).json({ error: 'Customer account not configured' })
 
     req.session.authenticated = true
     req.session.role = 'customer'
-    req.session.customerId = match.id
-    req.session.customerName = match.name
+    req.session.customerId = customer.id
+    req.session.customerName = customer.name
     req.session.save(err => {
       if (err) return res.status(500).json({ error: 'Session error' })
       res.json({ success: true, role: 'customer', customerName: match.name })
