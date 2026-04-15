@@ -89,8 +89,23 @@ router.post('/reset', requireApiKey, async (req, res) => {
     const build3 = await prisma.build.findUnique({ where: { buildNumber: 'PE-0003' } })
     const build4 = await prisma.build.findUnique({ where: { buildNumber: 'PE-0004' } })
 
-    // Delete all test results then re-create seed ones
+    // Delete all test results and cell lots then re-create seed ones
     await prisma.testResult.deleteMany({})
+    await prisma.cellLot.deleteMany({})
+
+    // Re-create cell lots
+    await prisma.cellLot.createMany({
+      data: [
+        { buildId: build1.id, lotNumber: 'CATL-2026-0312-A', supplier: 'CATL', quantity: 64, receivedAt: new Date('2026-03-12') },
+        { buildId: build1.id, lotNumber: 'CATL-2026-0318-B', supplier: 'CATL', quantity: 64, receivedAt: new Date('2026-03-18') },
+        { buildId: build1.id, lotNumber: 'CATL-2026-0325-A', supplier: 'CATL', quantity: 64, receivedAt: new Date('2026-03-25') },
+        { buildId: build2.id, lotNumber: 'EVE-2026-0201-A', supplier: 'EVE Energy', quantity: 96, receivedAt: new Date('2026-02-01') },
+        { buildId: build2.id, lotNumber: 'EVE-2026-0210-A', supplier: 'EVE Energy', quantity: 96, receivedAt: new Date('2026-02-10') },
+        { buildId: build2.id, lotNumber: 'CATL-2026-0312-A', supplier: 'CATL', quantity: 48, receivedAt: new Date('2026-03-12') },
+        { buildId: build3.id, lotNumber: 'SAMSUNG-2026-0401-A', supplier: 'Samsung SDI', quantity: 144, receivedAt: new Date('2026-04-01') },
+        { buildId: build4.id, lotNumber: 'CATL-2026-0408-A', supplier: 'CATL', quantity: 20, receivedAt: new Date('2026-04-08') },
+      ],
+    })
 
     await prisma.testResult.createMany({
       data: [

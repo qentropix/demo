@@ -116,6 +116,7 @@ async function main() {
     data: [
       { buildId: build2.id, lotNumber: 'EVE-2026-0201-A', supplier: 'EVE Energy', quantity: 96, receivedAt: new Date('2026-02-01') },
       { buildId: build2.id, lotNumber: 'EVE-2026-0210-A', supplier: 'EVE Energy', quantity: 96, receivedAt: new Date('2026-02-10') },
+      { buildId: build2.id, lotNumber: 'CATL-2026-0312-A', supplier: 'CATL', quantity: 48, receivedAt: new Date('2026-03-12') },
     ],
   })
 
