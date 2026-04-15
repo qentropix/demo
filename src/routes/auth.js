@@ -6,15 +6,15 @@ const router = Router()
 const DEMO_USER = process.env.DEMO_USERNAME || 'demo'
 const DEMO_PASS = process.env.DEMO_PASSWORD || 'Qentro!!1'
 
-// Parse CUSTOMER_LOGINS="midwest:midwest123:1,telecom:telecom123:2,medical:medical123:3"
-// Format: username:password:customerId
+// Parse CUSTOMER_LOGINS="midwest:midwest123:Midwest Logistics Center,telecom:telecom123:Detroit Metro Telecom"
+// Format: username:password:Exact Customer Name
 function parseCustomerLogins() {
   const raw = process.env.CUSTOMER_LOGINS || ''
   const map = {}
   raw.split(',').forEach(entry => {
     const parts = entry.trim().split(':')
     if (parts.length >= 3) {
-      map[parts[0]] = { password: parts[1], customerId: parseInt(parts[2]) }
+      map[parts[0]] = { password: parts[1], customerName: parts.slice(2).join(':') }
     }
   })
   return map
@@ -40,7 +40,7 @@ router.post('/login', async (req, res) => {
   const customerLogins = parseCustomerLogins()
   const entry = customerLogins[username]
   if (entry && entry.password === password) {
-    const customer = await prisma.customer.findUnique({ where: { id: entry.customerId } })
+    const customer = await prisma.customer.findFirst({ where: { name: entry.customerName } })
     if (!customer) return res.status(401).json({ error: 'Customer account not configured' })
 
     req.session.authenticated = true
@@ -49,7 +49,7 @@ router.post('/login', async (req, res) => {
     req.session.customerName = customer.name
     req.session.save(err => {
       if (err) return res.status(500).json({ error: 'Session error' })
-      res.json({ success: true, role: 'customer', customerName: match.name })
+      res.json({ success: true, role: 'customer', customerName: customer.name })
     })
     return
   }
