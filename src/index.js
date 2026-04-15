@@ -12,6 +12,7 @@ import buildRoutes from './routes/builds.js'
 import testResultRoutes from './routes/testResults.js'
 import reportRoutes from './routes/report.js'
 import customerRoutes from './routes/customers.js'
+import recallRoutes from './routes/recalls.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const app = express()
@@ -47,6 +48,7 @@ app.use('/api/builds', buildRoutes)
 app.use('/api/test-results', testResultRoutes)
 app.use('/api/report', reportRoutes)
 app.use('/api/customers', customerRoutes)
+app.use('/api/recalls', recallRoutes)
 
 // Serve React frontend in production
 if (process.env.NODE_ENV === 'production') {

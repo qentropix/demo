@@ -165,6 +165,22 @@ async function main() {
     ],
   })
 
+  // Recall alert — CATL lot used in PE-0001
+  await prisma.recall.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      lotNumber: 'CATL-2026-0312-A',
+      supplier: 'CATL',
+      severity: 'HIGH',
+      message: 'CATL has issued a safety notice for lot CATL-2026-0312-A due to potential BMS communication failure under high-load conditions.',
+      actionRequired: 'Suspend deployment and schedule cell inspection before next use. Contact Qentropix for inspection protocol.',
+      issuedAt: new Date('2026-04-14'),
+      isActive: true,
+    },
+  })
+
   console.log('Seed complete.')
 }
 

@@ -57,6 +57,17 @@ model TestResult {
   testedAt   DateTime   @default(now())
 }
 
+model Recall {
+  id             Int      @id @default(autoincrement())
+  lotNumber      String
+  supplier       String
+  severity       String
+  message        String
+  actionRequired String?
+  issuedAt       DateTime @default(now())
+  isActive       Boolean  @default(true)
+}
+
 enum BuildStatus {
   IN_PROGRESS
   TESTING

@@ -19,6 +19,7 @@ const STATUS_LABELS = {
 
 export default function Dashboard() {
   const [builds, setBuilds] = useState([])
+  const [recalls, setRecalls] = useState([])
   const [loading, setLoading] = useState(true)
   const [showNewBuild, setShowNewBuild] = useState(false)
   const navigate = useNavigate()
@@ -34,7 +35,18 @@ export default function Dashboard() {
     setLoading(false)
   }
 
-  useEffect(() => { fetchBuilds() }, [])
+  async function fetchRecalls() {
+    const res = await fetch('/api/recalls', { credentials: 'include' })
+    if (res.ok) {
+      const data = await res.json()
+      setRecalls(Array.isArray(data) ? data : [])
+    }
+  }
+
+  useEffect(() => {
+    fetchBuilds()
+    fetchRecalls()
+  }, [])
 
   function getTestSummary(build) {
     const total = build.testResults.length
@@ -51,6 +63,39 @@ export default function Dashboard() {
 
   return (
     <Layout>
+      {/* Recall Alerts */}
+      {recalls.filter(r => r.affectedBuilds.length > 0).map(recall => (
+        <div key={recall.id} className="mb-6 bg-red-500/10 border border-red-500/30 rounded-xl p-5">
+          <div className="flex items-start gap-3">
+            <div className="text-red-400 text-lg mt-0.5">⚠</div>
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-1">
+                <span className="text-red-400 font-semibold text-sm">Supplier Safety Notice</span>
+                <span className="text-xs bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-0.5 rounded-full">{recall.severity}</span>
+                <span className="text-xs text-gray-500">{new Date(recall.issuedAt).toLocaleDateString()}</span>
+              </div>
+              <div className="text-white font-medium mb-1">{recall.supplier} — Lot {recall.lotNumber}</div>
+              <div className="text-gray-300 text-sm mb-2">{recall.message}</div>
+              {recall.actionRequired && (
+                <div className="text-yellow-300 text-sm mb-3"><span className="font-semibold">Action Required:</span> {recall.actionRequired}</div>
+              )}
+              <div className="flex flex-wrap gap-2">
+                <span className="text-gray-400 text-xs mt-1">Affected builds:</span>
+                {recall.affectedBuilds.map(b => (
+                  <button
+                    key={b.buildId}
+                    onClick={() => navigate(`/builds/${b.buildId}`)}
+                    className="text-xs bg-red-500/20 text-red-300 border border-red-500/30 px-3 py-1 rounded-full hover:bg-red-500/30 transition"
+                  >
+                    {b.buildNumber} — {b.customerName}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white">Active Builds</h1>
