@@ -1,0 +1,41 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to IONOS VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd /var/www/qentropix-demo
+
+            echo "→ Pulling latest code..."
+            git pull origin main
+
+            echo "→ Installing backend dependencies..."
+            npm install
+
+            echo "→ Running database migrations..."
+            npx prisma db push
+
+            echo "→ Building frontend..."
+            cd client
+            npm install
+            npm run build
+            cd ..
+
+            echo "→ Restarting server..."
+            pm2 restart qentropix-demo --update-env
+
+            echo "✓ Deploy complete"
