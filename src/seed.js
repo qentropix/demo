@@ -7,18 +7,18 @@ async function main() {
 
   // ── Customers ──────────────────────────────────────────────────────────────
   const customers = await Promise.all([
-    prisma.customer.upsert({ where: { id: 1 }, update: {}, create: { id: 1, name: 'Midwest Logistics Center', contact: 'Dave Pollard', email: 'd.pollard@midwestlogistics.com' } }),
-    prisma.customer.upsert({ where: { id: 2 }, update: {}, create: { id: 2, name: 'Detroit Metro Telecom', contact: 'Karen Yee', email: 'k.yee@detroitmetrotelecom.com' } }),
-    prisma.customer.upsert({ where: { id: 3 }, update: {}, create: { id: 3, name: 'Lakeside Medical Center', contact: 'Frank Russo', email: 'f.russo@lakesidemedical.org' } }),
-    prisma.customer.upsert({ where: { id: 4 }, update: {}, create: { id: 4, name: 'Prime Energy — Internal', contact: 'Operations Team', email: 'ops@primeenergycs.com' } }),
-    prisma.customer.upsert({ where: { id: 5 }, update: {}, create: { id: 5, name: 'Great Lakes Manufacturing', contact: 'Tom Brewer', email: 't.brewer@greatlakesmfg.com' } }),
-    prisma.customer.upsert({ where: { id: 6 }, update: {}, create: { id: 6, name: 'Dearborn Steel Works', contact: 'Mike Okafor', email: 'm.okafor@dearbornsteel.com' } }),
-    prisma.customer.upsert({ where: { id: 7 }, update: {}, create: { id: 7, name: 'Michigan Solar Partners', contact: 'Linda Zhao', email: 'l.zhao@misolarpartners.com' } }),
-    prisma.customer.upsert({ where: { id: 8 }, update: {}, create: { id: 8, name: 'Peninsula Marina Group', contact: 'Steve Hartley', email: 's.hartley@peninsulamarina.com' } }),
-    prisma.customer.upsert({ where: { id: 9 }, update: {}, create: { id: 9, name: 'Detroit EV Fleet', contact: 'Angela Morse', email: 'a.morse@detroitevfleet.com' } }),
-    prisma.customer.upsert({ where: { id: 10 }, update: {}, create: { id: 10, name: 'AZD Distribution Center', contact: 'Ray Kowalski', email: 'r.kowalski@azddist.com' } }),
-    prisma.customer.upsert({ where: { id: 11 }, update: {}, create: { id: 11, name: 'United Security Systems', contact: 'Patricia Nolan', email: 'p.nolan@unitedsecurity.com' } }),
-    prisma.customer.upsert({ where: { id: 12 }, update: {}, create: { id: 12, name: 'Midwest Cold Storage', contact: 'Greg Tanner', email: 'g.tanner@midwestcoldstorage.com' } }),
+    prisma.customer.upsert({ where: { id: 1 }, update: { name: 'Midwest Logistics Center', contact: 'Dave Pollard', email: 'd.pollard@midwestlogistics.com' }, create: { id: 1, name: 'Midwest Logistics Center', contact: 'Dave Pollard', email: 'd.pollard@midwestlogistics.com' } }),
+    prisma.customer.upsert({ where: { id: 2 }, update: { name: 'Detroit Metro Telecom', contact: 'Karen Yee', email: 'k.yee@detroitmetrotelecom.com' }, create: { id: 2, name: 'Detroit Metro Telecom', contact: 'Karen Yee', email: 'k.yee@detroitmetrotelecom.com' } }),
+    prisma.customer.upsert({ where: { id: 3 }, update: { name: 'Lakeside Medical Center', contact: 'Frank Russo', email: 'f.russo@lakesidemedical.org' }, create: { id: 3, name: 'Lakeside Medical Center', contact: 'Frank Russo', email: 'f.russo@lakesidemedical.org' } }),
+    prisma.customer.upsert({ where: { id: 4 }, update: { name: 'Prime Energy — Internal', contact: 'Operations Team', email: 'ops@primeenergycs.com' }, create: { id: 4, name: 'Prime Energy — Internal', contact: 'Operations Team', email: 'ops@primeenergycs.com' } }),
+    prisma.customer.upsert({ where: { id: 5 }, update: { name: 'Great Lakes Manufacturing', contact: 'Tom Brewer', email: 't.brewer@greatlakesmfg.com' }, create: { id: 5, name: 'Great Lakes Manufacturing', contact: 'Tom Brewer', email: 't.brewer@greatlakesmfg.com' } }),
+    prisma.customer.upsert({ where: { id: 6 }, update: { name: 'Dearborn Steel Works', contact: 'Mike Okafor', email: 'm.okafor@dearbornsteel.com' }, create: { id: 6, name: 'Dearborn Steel Works', contact: 'Mike Okafor', email: 'm.okafor@dearbornsteel.com' } }),
+    prisma.customer.upsert({ where: { id: 7 }, update: { name: 'Michigan Solar Partners', contact: 'Linda Zhao', email: 'l.zhao@misolarpartners.com' }, create: { id: 7, name: 'Michigan Solar Partners', contact: 'Linda Zhao', email: 'l.zhao@misolarpartners.com' } }),
+    prisma.customer.upsert({ where: { id: 8 }, update: { name: 'Peninsula Marina Group', contact: 'Steve Hartley', email: 's.hartley@peninsulamarina.com' }, create: { id: 8, name: 'Peninsula Marina Group', contact: 'Steve Hartley', email: 's.hartley@peninsulamarina.com' } }),
+    prisma.customer.upsert({ where: { id: 9 }, update: { name: 'Detroit EV Fleet', contact: 'Angela Morse', email: 'a.morse@detroitevfleet.com' }, create: { id: 9, name: 'Detroit EV Fleet', contact: 'Angela Morse', email: 'a.morse@detroitevfleet.com' } }),
+    prisma.customer.upsert({ where: { id: 10 }, update: { name: 'AZD Distribution Center', contact: 'Ray Kowalski', email: 'r.kowalski@azddist.com' }, create: { id: 10, name: 'AZD Distribution Center', contact: 'Ray Kowalski', email: 'r.kowalski@azddist.com' } }),
+    prisma.customer.upsert({ where: { id: 11 }, update: { name: 'United Security Systems', contact: 'Patricia Nolan', email: 'p.nolan@unitedsecurity.com' }, create: { id: 11, name: 'United Security Systems', contact: 'Patricia Nolan', email: 'p.nolan@unitedsecurity.com' } }),
+    prisma.customer.upsert({ where: { id: 12 }, update: { name: 'Midwest Cold Storage', contact: 'Greg Tanner', email: 'g.tanner@midwestcoldstorage.com' }, create: { id: 12, name: 'Midwest Cold Storage', contact: 'Greg Tanner', email: 'g.tanner@midwestcoldstorage.com' } }),
   ])
 
   const [midwest, telecom, medical, primeInternal, glMfg, dearborn, miSolar, peninsula, detroitEV, azd, united, coldStorage] = customers
