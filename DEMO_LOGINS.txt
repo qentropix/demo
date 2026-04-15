@@ -1,0 +1,29 @@
+Prime Energy Build Tracker — Demo Logins
+========================================
+URL: https://demo.qentropix.com
+
+OPERATOR (Prime Energy full access)
+  Username : demo
+  Password : Qentro!!1
+  Access   : All 29 builds, all customers, full control
+
+CUSTOMER LOGINS (read-only, filtered to their builds)
+  Midwest Logistics Center
+    Username : midwest
+    Password : midwest123
+
+  Detroit Metro Telecom
+    Username : telecom
+    Password : telecom123
+
+  Lakeside Medical Center
+    Username : medical
+    Password : medical123
+
+POSTMAN — Demo Triggers (API key: prime-energy-demo-key)
+  Collection : postman/Prime Energy Demo.postman_collection.json
+  1. BMS Test PASS        → resolves FAIL on PE-0001
+  2. Capacity Test FAIL   → adds FAIL to PE-0003
+  3. Update Status        → PE-0003 In Progress → Testing
+  4. Trigger CATL Recall  → red alert banner, flags PE-0001, PE-0002, PE-0005, PE-0010
+  Reset Demo              → restores clean state after meeting
