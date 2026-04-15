@@ -27,6 +27,16 @@ const STATUS_CHART_COLORS = {
 
 const APPLICATIONS = ['Forklift', 'UPS / Backup Power', 'Telecom Backup', 'Marine', 'Solar Storage', 'EV Conversion', 'Custom']
 
+const APP_COLORS = {
+  'Forklift':          '#06b6d4',
+  'UPS/Backup':        '#8b5cf6',
+  'Telecom Backup':    '#f59e0b',
+  'Marine':            '#3b82f6',
+  'Solar Storage':     '#22c55e',
+  'EV Conversion':     '#f97316',
+  'Custom':            '#ec4899',
+}
+
 export default function Dashboard() {
   const [builds, setBuilds] = useState([])
   const [recalls, setRecalls] = useState([])
@@ -197,7 +207,11 @@ export default function Dashboard() {
                   itemStyle={{ color: '#e2e8f0' }}
                   cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                 />
-                <Bar dataKey="count" fill="#06b6d4" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                  {appChartData.map((entry, i) => (
+                    <Cell key={i} fill={APP_COLORS[entry.name] || '#06b6d4'} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
