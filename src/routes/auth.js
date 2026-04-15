@@ -10,11 +10,7 @@ router.post('/login', (req, res) => {
   if (username === DEMO_USER && password === DEMO_PASS) {
     req.session.authenticated = true
     req.session.save(err => {
-      if (err) {
-        console.error('[login] session save error:', err)
-        return res.status(500).json({ error: 'Session error' })
-      }
-      console.log('[login] session saved, id:', req.sessionID)
+      if (err) return res.status(500).json({ error: 'Session error' })
       res.json({ success: true })
     })
     return
