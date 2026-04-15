@@ -68,18 +68,36 @@ export default function BuildDetail() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-4 gap-4 mb-4">
+        <div className="bg-card rounded-xl p-5 border border-white/5">
+          <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">Application</div>
+          <div className="text-white font-semibold">{build.application || '—'}</div>
+        </div>
         <div className="bg-card rounded-xl p-5 border border-white/5">
           <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">Voltage</div>
           <div className="text-white font-semibold text-xl">{build.voltage}</div>
         </div>
         <div className="bg-card rounded-xl p-5 border border-white/5">
-          <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">Cell Config</div>
-          <div className="text-white font-semibold">{build.cellConfig}</div>
+          <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">Capacity</div>
+          <div className="text-white font-semibold">{build.nominalCapacity || '—'}</div>
         </div>
         <div className="bg-card rounded-xl p-5 border border-white/5">
           <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">Quantity</div>
           <div className="text-white font-semibold text-xl">{build.quantity} units</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="bg-card rounded-xl p-5 border border-white/5">
+          <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">Cell Config</div>
+          <div className="text-white font-semibold">{build.cellConfig}</div>
+        </div>
+        <div className="bg-card rounded-xl p-5 border border-white/5">
+          <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">Enclosure Rating</div>
+          <div className="text-white font-semibold">{build.enclosureType || '—'}</div>
+        </div>
+        <div className="bg-card rounded-xl p-5 border border-white/5">
+          <div className="text-gray-400 text-xs uppercase tracking-wider mb-2">Target Delivery</div>
+          <div className="text-white font-semibold">{build.targetDelivery ? new Date(build.targetDelivery).toLocaleDateString() : '—'}</div>
         </div>
       </div>
 

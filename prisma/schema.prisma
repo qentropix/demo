@@ -17,19 +17,23 @@ model Customer {
 }
 
 model Build {
-  id          Int           @id @default(autoincrement())
-  buildNumber String        @unique
-  customer    Customer      @relation(fields: [customerId], references: [id])
-  customerId  Int
-  voltage     String
-  cellConfig  String
-  quantity    Int
-  status      BuildStatus   @default(IN_PROGRESS)
-  notes       String?
-  cellLots    CellLot[]
-  testResults TestResult[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id              Int           @id @default(autoincrement())
+  buildNumber     String        @unique
+  customer        Customer      @relation(fields: [customerId], references: [id])
+  customerId      Int
+  voltage         String
+  cellConfig      String
+  quantity        Int
+  application     String?
+  nominalCapacity String?
+  enclosureType   String?
+  targetDelivery  DateTime?
+  status          BuildStatus   @default(IN_PROGRESS)
+  notes           String?
+  cellLots        CellLot[]
+  testResults     TestResult[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 model CellLot {

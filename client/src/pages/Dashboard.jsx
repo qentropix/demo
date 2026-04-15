@@ -92,8 +92,9 @@ export default function Dashboard() {
                   </td>
                   <td className="px-6 py-4 text-gray-300">{build.customer.name}</td>
                   <td className="px-6 py-4">
-                    <div className="text-gray-300">{build.voltage}</div>
+                    <div className="text-gray-300">{build.voltage}{build.nominalCapacity ? ` · ${build.nominalCapacity}` : ''}</div>
                     <div className="text-gray-500 text-xs mt-0.5">{build.cellConfig}</div>
+                    {build.application && <div className="text-gray-600 text-xs mt-0.5">{build.application}</div>}
                   </td>
                   <td className="px-6 py-4 text-gray-300">{build.cellLots.length} lot{build.cellLots.length !== 1 ? 's' : ''}</td>
                   <td className="px-6 py-4">{getTestSummary(build)}</td>

@@ -42,7 +42,7 @@ router.get('/:id', requireAuth, async (req, res) => {
 // POST new build
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const { customerId, voltage, cellConfig, quantity, notes } = req.body
+    const { customerId, voltage, cellConfig, quantity, notes, application, nominalCapacity, enclosureType, targetDelivery } = req.body
     const count = await prisma.build.count()
     const build = await prisma.build.create({
       data: {
@@ -52,6 +52,10 @@ router.post('/', requireAuth, async (req, res) => {
         cellConfig,
         quantity: parseInt(quantity),
         notes,
+        application: application || null,
+        nominalCapacity: nominalCapacity || null,
+        enclosureType: enclosureType || null,
+        targetDelivery: targetDelivery ? new Date(targetDelivery) : null,
       },
       include: { customer: true },
     })

@@ -53,10 +53,23 @@ export default function Report() {
 
         <div className="grid grid-cols-4 gap-4 mb-4">
           {[
-            ['Voltage',       build.voltage],
-            ['Cell Config',   build.cellConfig],
-            ['Quantity',      `${build.quantity} units`],
-            ['Status',        build.status.replace('_', ' ')],
+            ['Application',     build.application || '—'],
+            ['Voltage',         build.voltage],
+            ['Capacity',        build.nominalCapacity || '—'],
+            ['Quantity',        `${build.quantity} units`],
+          ].map(([label, value]) => (
+            <div key={label} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">{label}</div>
+              <div className="font-semibold text-gray-900">{value}</div>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-4 gap-4 mb-4">
+          {[
+            ['Cell Config',      build.cellConfig],
+            ['Enclosure Rating', build.enclosureType || '—'],
+            ['Target Delivery',  build.targetDelivery ? new Date(build.targetDelivery).toLocaleDateString() : '—'],
+            ['Status',           build.status.replace('_', ' ')],
           ].map(([label, value]) => (
             <div key={label} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">{label}</div>
