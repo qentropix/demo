@@ -9,7 +9,11 @@ router.post('/login', (req, res) => {
   const { username, password } = req.body
   if (username === DEMO_USER && password === DEMO_PASS) {
     req.session.authenticated = true
-    return res.json({ success: true })
+    req.session.save(err => {
+      if (err) return res.status(500).json({ error: 'Session error' })
+      res.json({ success: true })
+    })
+    return
   }
   res.status(401).json({ error: 'Invalid credentials' })
 })
