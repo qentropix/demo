@@ -1,0 +1,113 @@
+{
+  "info": {
+    "name": "Prime Energy Demo",
+    "description": "Live demo triggers and reset for Prime Energy Build Tracker presentation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://demo.qentropix.com",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "prime-energy-demo-key",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🎯 Demo Triggers",
+      "description": "Fire these during the presentation",
+      "item": [
+        {
+          "name": "1 — BMS Test PASS (PE-0001)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": "{{base_url}}/api/ingest/test-result",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"buildNumber\": \"PE-0001\",\n  \"testType\": \"BMS Communication\",\n  \"result\": \"PASS\",\n  \"notes\": \"CAN bus issue resolved — all 8 units communicating correctly\",\n  \"technician\": \"John Koch\"\n}"
+            },
+            "description": "Resolves the BMS FAIL on Midwest Logistics forklift build — shows test result updating live"
+          }
+        },
+        {
+          "name": "2 — Capacity Test FAIL (PE-0003)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": "{{base_url}}/api/ingest/test-result",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"buildNumber\": \"PE-0003\",\n  \"testType\": \"Capacity Test\",\n  \"result\": \"FAIL\",\n  \"notes\": \"Unit 3 showing 84% capacity — below 95% threshold. Isolating cell group.\",\n  \"technician\": \"John Koch\"\n}"
+            },
+            "description": "Adds a FAIL to Lakeside Medical build — shows how failures are tracked in real time"
+          }
+        },
+        {
+          "name": "3 — Update Status to Testing (PE-0003)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": "{{base_url}}/api/ingest/status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"buildNumber\": \"PE-0003\",\n  \"status\": \"TESTING\"\n}"
+            },
+            "description": "Moves Lakeside Medical from In Progress to Testing — shows status updating live on dashboard"
+          }
+        },
+        {
+          "name": "4 — Trigger CATL Recall Alert",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": "{{base_url}}/api/ingest/recall",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lotNumber\": \"CATL-2026-0312-A\",\n  \"supplier\": \"CATL\",\n  \"severity\": \"HIGH\",\n  \"message\": \"CATL has issued a safety notice for lot CATL-2026-0312-A due to potential BMS communication failure under high-load conditions. All packs using this lot should be inspected before deployment.\",\n  \"actionRequired\": \"Suspend deployment and schedule cell inspection before next use. Contact Qentropix for inspection protocol.\"\n}"
+            },
+            "description": "Fires a recall alert — dashboard auto-detects PE-0001 uses this lot and shows the red banner"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔄 Reset",
+      "description": "Fire after the meeting to restore clean demo state",
+      "item": [
+        {
+          "name": "Reset Demo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": "{{base_url}}/api/ingest/reset",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "description": "Wipes all recalls, resets test results and build statuses back to clean seed state. Fire this after every meeting."
+          }
+        }
+      ]
+    }
+  ]
+}

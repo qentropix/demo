@@ -46,6 +46,11 @@ export default function Dashboard() {
   useEffect(() => {
     fetchBuilds()
     fetchRecalls()
+    const interval = setInterval(() => {
+      fetchBuilds()
+      fetchRecalls()
+    }, 5000)
+    return () => clearInterval(interval)
   }, [])
 
   function getTestSummary(build) {
