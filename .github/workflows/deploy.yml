@@ -31,7 +31,7 @@ jobs:
             npm install
 
             echo "→ Running database migrations..."
-            npx prisma db push
+            npx prisma db push --accept-data-loss
 
             echo "→ Building frontend..."
             cd client
