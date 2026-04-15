@@ -1,8 +1,11 @@
 import express from 'express'
 import session from 'express-session'
+import pgSession from 'connect-pg-simple'
 import cors from 'cors'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+
+const PgSession = pgSession(session)
 
 import authRoutes from './routes/auth.js'
 import buildRoutes from './routes/builds.js'
@@ -23,6 +26,10 @@ app.use(cors({
 app.use(express.json())
 
 app.use(session({
+  store: new PgSession({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: true,
+  }),
   secret: process.env.SESSION_SECRET || 'qentropix-demo-secret',
   resave: false,
   saveUninitialized: false,
