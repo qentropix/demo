@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  contact   String?
+  email     String?
+  builds    Build[]
+  createdAt DateTime @default(now())
+}
+
+model Build {
+  id          Int           @id @default(autoincrement())
+  buildNumber String        @unique
+  customer    Customer      @relation(fields: [customerId], references: [id])
+  customerId  Int
+  voltage     String
+  cellConfig  String
+  quantity    Int
+  status      BuildStatus   @default(IN_PROGRESS)
+  notes       String?
+  cellLots    CellLot[]
+  testResults TestResult[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model CellLot {
+  id          Int      @id @default(autoincrement())
+  build       Build    @relation(fields: [buildId], references: [id])
+  buildId     Int
+  lotNumber   String
+  supplier    String
+  quantity    Int
+  receivedAt  DateTime @default(now())
+}
+
+model TestResult {
+  id         Int        @id @default(autoincrement())
+  build      Build      @relation(fields: [buildId], references: [id])
+  buildId    Int
+  testType   String
+  result     TestResult_Result
+  notes      String?
+  technician String
+  testedAt   DateTime   @default(now())
+}
+
+enum BuildStatus {
+  IN_PROGRESS
+  TESTING
+  COMPLETE
+  ON_HOLD
+}
+
+enum TestResult_Result {
+  PASS
+  FAIL
+}

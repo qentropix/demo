@@ -1,0 +1,22 @@
+{
+  "name": "qentropix-demo",
+  "version": "1.0.0",
+  "description": "Prime Energy Build Tracker Demo",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "db:migrate": "npx prisma migrate deploy",
+    "db:seed": "node src/seed.js",
+    "db:studio": "npx prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.3",
+    "express-session": "^1.18.0",
+    "prisma": "^5.10.0"
+  }
+}
