@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import Layout from '../components/Layout.jsx'
 import NewBuildModal from '../components/NewBuildModal.jsx'
 
@@ -17,19 +18,28 @@ const STATUS_LABELS = {
   ON_HOLD:     'On Hold',
 }
 
+const STATUS_CHART_COLORS = {
+  IN_PROGRESS: '#3b82f6',
+  TESTING:     '#eab308',
+  COMPLETE:    '#22c55e',
+  ON_HOLD:     '#6b7280',
+}
+
+const APPLICATIONS = ['Forklift', 'UPS / Backup Power', 'Telecom Backup', 'Marine', 'Solar Storage', 'EV Conversion', 'Custom']
+
 export default function Dashboard() {
   const [builds, setBuilds] = useState([])
   const [recalls, setRecalls] = useState([])
   const [loading, setLoading] = useState(true)
   const [showNewBuild, setShowNewBuild] = useState(false)
+  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [appFilter, setAppFilter] = useState('')
+  const [search, setSearch] = useState('')
   const navigate = useNavigate()
 
   async function fetchBuilds() {
     const res = await fetch('/api/builds', { credentials: 'include' })
-    if (res.status === 401) {
-      window.location.href = '/login'
-      return
-    }
+    if (res.status === 401) { window.location.href = '/login'; return }
     const data = await res.json()
     setBuilds(Array.isArray(data) ? data : [])
     setLoading(false)
@@ -37,34 +47,72 @@ export default function Dashboard() {
 
   async function fetchRecalls() {
     const res = await fetch('/api/recalls', { credentials: 'include' })
-    if (res.ok) {
-      const data = await res.json()
-      setRecalls(Array.isArray(data) ? data : [])
-    }
+    if (res.ok) setRecalls(Array.isArray(await res.json()) ? await res.clone().json() : [])
   }
 
   useEffect(() => {
     fetchBuilds()
     fetchRecalls()
-    const interval = setInterval(() => {
-      fetchBuilds()
-      fetchRecalls()
-    }, 5000)
+    const interval = setInterval(() => { fetchBuilds(); fetchRecalls() }, 5000)
     return () => clearInterval(interval)
   }, [])
 
+  // ── Derived stats ──────────────────────────────────────────────────────────
+  const statusCounts = useMemo(() => {
+    const counts = { IN_PROGRESS: 0, TESTING: 0, COMPLETE: 0, ON_HOLD: 0 }
+    builds.forEach(b => { if (counts[b.status] !== undefined) counts[b.status]++ })
+    return counts
+  }, [builds])
+
+  const statusChartData = useMemo(() =>
+    Object.entries(statusCounts)
+      .filter(([, v]) => v > 0)
+      .map(([key, value]) => ({ name: STATUS_LABELS[key], value, color: STATUS_CHART_COLORS[key] }))
+  , [statusCounts])
+
+  const appChartData = useMemo(() => {
+    const counts = {}
+    builds.forEach(b => {
+      if (b.application) counts[b.application] = (counts[b.application] || 0) + 1
+    })
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name: name === 'UPS / Backup Power' ? 'UPS/Backup' : name, count }))
+  }, [builds])
+
+  const passRate = useMemo(() => {
+    const allTests = builds.flatMap(b => b.testResults)
+    if (!allTests.length) return null
+    const passed = allTests.filter(t => t.result === 'PASS').length
+    return Math.round((passed / allTests.length) * 100)
+  }, [builds])
+
+  // ── Filtered builds ────────────────────────────────────────────────────────
+  const filtered = useMemo(() => builds.filter(b => {
+    if (statusFilter !== 'ALL' && b.status !== statusFilter) return false
+    if (appFilter && b.application !== appFilter) return false
+    if (search) {
+      const q = search.toLowerCase()
+      if (!b.buildNumber.toLowerCase().includes(q) && !b.customer.name.toLowerCase().includes(q)) return false
+    }
+    return true
+  }), [builds, statusFilter, appFilter, search])
+
   function getTestSummary(build) {
     const total = build.testResults.length
-    if (total === 0) return <span className="text-gray-500">No tests yet</span>
+    if (total === 0) return <span className="text-gray-500 text-sm">No tests yet</span>
     const passed = build.testResults.filter(t => t.result === 'PASS').length
     const failed = total - passed
     return (
-      <span className="flex gap-2">
+      <span className="flex gap-2 text-sm">
         <span className="text-green-400">{passed} Pass</span>
         {failed > 0 && <span className="text-red-400">{failed} Fail</span>}
       </span>
     )
   }
+
+  const STATUS_TABS = ['ALL', 'IN_PROGRESS', 'TESTING', 'COMPLETE', 'ON_HOLD']
+  const TAB_LABELS = { ALL: 'All', ...STATUS_LABELS }
 
   return (
     <Layout>
@@ -87,11 +135,8 @@ export default function Dashboard() {
               <div className="flex flex-wrap gap-2">
                 <span className="text-gray-400 text-xs mt-1">Affected builds:</span>
                 {recall.affectedBuilds.map(b => (
-                  <button
-                    key={b.buildId}
-                    onClick={() => navigate(`/builds/${b.buildId}`)}
-                    className="text-xs bg-red-500/20 text-red-300 border border-red-500/30 px-3 py-1 rounded-full hover:bg-red-500/30 transition"
-                  >
+                  <button key={b.buildId} onClick={() => navigate(`/builds/${b.buildId}`)}
+                    className="text-xs bg-red-500/20 text-red-300 border border-red-500/30 px-3 py-1 rounded-full hover:bg-red-500/30 transition">
                     {b.buildNumber} — {b.customerName}
                   </button>
                 ))}
@@ -101,19 +146,125 @@ export default function Dashboard() {
         </div>
       ))}
 
-      <div className="flex items-center justify-between mb-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Active Builds</h1>
-          <p className="text-gray-400 text-sm mt-1">{builds.length} builds tracked</p>
+          <p className="text-gray-400 text-sm mt-1">{builds.length} builds tracked across {new Set(builds.map(b => b.customer?.name)).size} customers</p>
         </div>
-        <button
-          onClick={() => setShowNewBuild(true)}
-          className="bg-cyan text-navy font-semibold px-5 py-2.5 rounded-lg hover:bg-cyan/90 transition text-sm"
-        >
+        <button onClick={() => setShowNewBuild(true)}
+          className="bg-cyan text-navy font-semibold px-5 py-2.5 rounded-lg hover:bg-cyan/90 transition text-sm">
           + New Build
         </button>
       </div>
 
+      {/* Stats + Charts */}
+      {!loading && builds.length > 0 && (
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          {/* Status donut */}
+          <div className="col-span-1 bg-card rounded-xl border border-white/5 p-5">
+            <div className="text-gray-400 text-xs uppercase tracking-wider mb-3">By Status</div>
+            <ResponsiveContainer width="100%" height={120}>
+              <PieChart>
+                <Pie data={statusChartData} cx="50%" cy="50%" innerRadius={30} outerRadius={50} dataKey="value" paddingAngle={2}>
+                  {statusChartData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ background: '#0d1b2a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '12px' }}
+                  itemStyle={{ color: '#e2e8f0' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
+              {statusChartData.map(s => (
+                <div key={s.name} className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full" style={{ background: s.color }} />
+                  <span className="text-gray-400 text-xs">{s.name}: {s.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Application bar chart */}
+          <div className="col-span-2 bg-card rounded-xl border border-white/5 p-5">
+            <div className="text-gray-400 text-xs uppercase tracking-wider mb-3">Builds by Application</div>
+            <ResponsiveContainer width="100%" height={150}>
+              <BarChart data={appChartData} layout="vertical" margin={{ left: 10, right: 20 }}>
+                <XAxis type="number" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} width={80} />
+                <Tooltip
+                  contentStyle={{ background: '#0d1b2a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '12px' }}
+                  itemStyle={{ color: '#e2e8f0' }}
+                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                />
+                <Bar dataKey="count" fill="#06b6d4" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Stats cards */}
+          <div className="col-span-1 flex flex-col gap-3">
+            <div className="bg-card rounded-xl border border-white/5 p-4 flex-1">
+              <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Test Pass Rate</div>
+              <div className={`text-3xl font-bold ${passRate >= 90 ? 'text-green-400' : passRate >= 75 ? 'text-yellow-400' : 'text-red-400'}`}>
+                {passRate !== null ? `${passRate}%` : '—'}
+              </div>
+              <div className="text-gray-500 text-xs mt-1">across all builds</div>
+            </div>
+            <div className="bg-card rounded-xl border border-white/5 p-4 flex-1">
+              <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">In Testing</div>
+              <div className="text-3xl font-bold text-yellow-400">{statusCounts.TESTING}</div>
+              <div className="text-gray-500 text-xs mt-1">{statusCounts.IN_PROGRESS} in progress</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filters */}
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
+        {/* Status tabs */}
+        <div className="flex bg-card rounded-lg border border-white/5 p-1 gap-1">
+          {STATUS_TABS.map(s => (
+            <button key={s} onClick={() => setStatusFilter(s)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
+                statusFilter === s ? 'bg-cyan text-navy' : 'text-gray-400 hover:text-white'
+              }`}>
+              {TAB_LABELS[s]}
+              {s !== 'ALL' && statusCounts[s] > 0 && (
+                <span className={`ml-1.5 text-xs ${statusFilter === s ? 'text-navy/70' : 'text-gray-600'}`}>
+                  {statusCounts[s]}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Application filter */}
+        <select value={appFilter} onChange={e => setAppFilter(e.target.value)}
+          className="bg-card border border-white/10 rounded-lg px-3 py-2 text-gray-300 text-xs focus:outline-none focus:border-cyan">
+          <option value="">All Applications</option>
+          {APPLICATIONS.map(a => <option key={a} value={a}>{a}</option>)}
+        </select>
+
+        {/* Search */}
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search build or customer..."
+          className="bg-card border border-white/10 rounded-lg px-3 py-2 text-gray-300 text-xs focus:outline-none focus:border-cyan w-52 placeholder-gray-600"
+        />
+
+        {(statusFilter !== 'ALL' || appFilter || search) && (
+          <button onClick={() => { setStatusFilter('ALL'); setAppFilter(''); setSearch('') }}
+            className="text-xs text-gray-500 hover:text-gray-300 transition">
+            Clear filters
+          </button>
+        )}
+
+        <span className="text-gray-600 text-xs ml-auto">{filtered.length} of {builds.length} builds</span>
+      </div>
+
+      {/* Builds Table */}
       {loading ? (
         <div className="text-gray-400">Loading builds...</div>
       ) : (
@@ -130,12 +281,11 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {builds.map((build, i) => (
-                <tr
-                  key={build.id}
-                  onClick={() => navigate(`/builds/${build.id}`)}
-                  className={`cursor-pointer hover:bg-white/5 transition border-b border-white/5 ${i === builds.length - 1 ? 'border-b-0' : ''}`}
-                >
+              {filtered.length === 0 ? (
+                <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-500 text-sm">No builds match the current filters</td></tr>
+              ) : filtered.map((build, i) => (
+                <tr key={build.id} onClick={() => navigate(`/builds/${build.id}`)}
+                  className={`cursor-pointer hover:bg-white/5 transition border-b border-white/5 ${i === filtered.length - 1 ? 'border-b-0' : ''}`}>
                   <td className="px-6 py-4">
                     <div className="font-semibold text-cyan">{build.buildNumber}</div>
                     <div className="text-gray-500 text-xs mt-0.5">Qty: {build.quantity}</div>
@@ -161,10 +311,7 @@ export default function Dashboard() {
       )}
 
       {showNewBuild && (
-        <NewBuildModal
-          onClose={() => setShowNewBuild(false)}
-          onCreated={() => { setShowNewBuild(false); fetchBuilds() }}
-        />
+        <NewBuildModal onClose={() => setShowNewBuild(false)} onCreated={() => { setShowNewBuild(false); fetchBuilds() }} />
       )}
     </Layout>
   )
