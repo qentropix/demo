@@ -4,10 +4,12 @@ import { requireAuth } from '../middleware/auth.js'
 
 const router = Router()
 
-// GET all builds
+// GET all builds (filtered by customer if customer session)
 router.get('/', requireAuth, async (req, res) => {
   try {
+    const where = req.session.customerId ? { customerId: req.session.customerId } : {}
     const builds = await prisma.build.findMany({
+      where,
       include: {
         customer: true,
         cellLots: true,
@@ -39,8 +41,9 @@ router.get('/:id', requireAuth, async (req, res) => {
   }
 })
 
-// POST new build
+// POST new build (operator only)
 router.post('/', requireAuth, async (req, res) => {
+  if (req.session.role === 'customer') return res.status(403).json({ error: 'Not authorized' })
   try {
     const { customerId, voltage, cellConfig, quantity, notes, application, nominalCapacity, enclosureType, targetDelivery } = req.body
     const count = await prisma.build.count()

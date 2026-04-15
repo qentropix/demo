@@ -17,7 +17,7 @@ const STATUS_LABELS = {
   ON_HOLD:     'On Hold',
 }
 
-export default function BuildDetail() {
+export default function BuildDetail({ isOperator = true }) {
   const { id } = useParams()
   const navigate = useNavigate()
   const [build, setBuild] = useState(null)
@@ -55,6 +55,11 @@ export default function BuildDetail() {
             <p className="text-gray-400 mt-1">{build.customer.name}</p>
           </div>
           <div className="flex items-center gap-3">
+            {!isOperator && (
+              <span className="text-xs text-gray-500 border border-white/10 px-3 py-1.5 rounded-full">
+                Read-only
+              </span>
+            )}
             <span className={`text-xs font-medium px-3 py-1.5 rounded-full border ${STATUS_COLORS[build.status]}`}>
               {STATUS_LABELS[build.status]}
             </span>
@@ -151,12 +156,14 @@ export default function BuildDetail() {
               </div>
             )}
           </div>
-          <button
-            onClick={() => setShowAddTest(true)}
-            className="bg-cyan text-navy font-semibold px-4 py-2 rounded-lg hover:bg-cyan/90 transition text-sm"
-          >
-            + Add Test Result
-          </button>
+          {isOperator && (
+            <button
+              onClick={() => setShowAddTest(true)}
+              className="bg-cyan text-navy font-semibold px-4 py-2 rounded-lg hover:bg-cyan/90 transition text-sm"
+            >
+              + Add Test Result
+            </button>
+          )}
         </div>
 
         {build.testResults.length === 0 ? (

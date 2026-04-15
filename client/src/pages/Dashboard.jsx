@@ -37,7 +37,7 @@ const APP_COLORS = {
   'Custom':            '#ec4899',
 }
 
-export default function Dashboard() {
+export default function Dashboard({ isOperator = true, session = {} }) {
   const [builds, setBuilds] = useState([])
   const [recalls, setRecalls] = useState([])
   const [loading, setLoading] = useState(true)
@@ -159,13 +159,21 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Active Builds</h1>
-          <p className="text-gray-400 text-sm mt-1">{builds.length} builds tracked across {new Set(builds.map(b => b.customer?.name)).size} customers</p>
+          <h1 className="text-2xl font-bold text-white">
+            {isOperator ? 'Active Builds' : `${session.customerName} — Your Builds`}
+          </h1>
+          <p className="text-gray-400 text-sm mt-1">
+            {isOperator
+              ? `${builds.length} builds tracked across ${new Set(builds.map(b => b.customer?.name)).size} customers`
+              : `${builds.length} build${builds.length !== 1 ? 's' : ''} — read-only view`}
+          </p>
         </div>
-        <button onClick={() => setShowNewBuild(true)}
-          className="bg-cyan text-navy font-semibold px-5 py-2.5 rounded-lg hover:bg-cyan/90 transition text-sm">
-          + New Build
-        </button>
+        {isOperator && (
+          <button onClick={() => setShowNewBuild(true)}
+            className="bg-cyan text-navy font-semibold px-5 py-2.5 rounded-lg hover:bg-cyan/90 transition text-sm">
+            + New Build
+          </button>
+        )}
       </div>
 
       {/* Stats + Charts */}
