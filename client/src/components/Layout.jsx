@@ -18,7 +18,7 @@ export default function Layout({ children }) {
             onClick={() => navigate('/')}
           >
             <img
-              src="/prime-energy-logo.png"
+              src="/primeenergy/prime-energy-logo.png"
               alt="Prime Energy Contract Services"
               className="h-8 w-auto"
               style={{ filter: 'brightness(0) invert(1)' }}
