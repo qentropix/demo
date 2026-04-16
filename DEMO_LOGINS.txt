@@ -1,6 +1,6 @@
 Prime Energy Build Tracker — Demo Logins
 ========================================
-URL: https://demo.qentropix.com
+URL: https://demo.qentropix.com/primeenergy
 
 OPERATOR (Prime Energy full access)
   Username : demo
