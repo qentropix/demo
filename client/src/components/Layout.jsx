@@ -14,14 +14,17 @@ export default function Layout({ children }) {
       <header className="border-b border-white/10 bg-card">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div
-            className="flex items-center gap-3 cursor-pointer"
+            className="flex items-center gap-4 cursor-pointer"
             onClick={() => navigate('/')}
           >
-            <div className="text-cyan text-xl font-bold tracking-wide">
-              Q<span className="text-gray-300 font-normal">entropix</span>
-            </div>
+            <img
+              src="/prime-energy-logo.png"
+              alt="Prime Energy Contract Services"
+              className="h-8 w-auto"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
             <div className="text-white/20">|</div>
-            <div className="text-gray-300 text-sm">Prime Energy Build Tracker</div>
+            <div className="text-gray-300 text-sm">Build Tracker</div>
           </div>
           <button
             onClick={handleLogout}
