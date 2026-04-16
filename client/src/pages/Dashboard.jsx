@@ -45,13 +45,27 @@ export default function Dashboard({ isOperator = true, session = {} }) {
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [appFilter, setAppFilter] = useState('')
   const [search, setSearch] = useState('')
+  const [toasts, setToasts] = useState([])
+  const knownBuildIds = React.useRef(null)
   const navigate = useNavigate()
+
+  function addToast(message) {
+    const id = Date.now()
+    setToasts(prev => [...prev, { id, message }])
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 5000)
+  }
 
   async function fetchBuilds() {
     const res = await fetch('/api/builds', { credentials: 'include' })
     if (res.status === 401) { window.location.href = '/login'; return }
     const data = await res.json()
-    setBuilds(Array.isArray(data) ? data : [])
+    const incoming = Array.isArray(data) ? data : []
+    if (knownBuildIds.current !== null) {
+      const newBuilds = incoming.filter(b => !knownBuildIds.current.has(b.id))
+      newBuilds.forEach(b => addToast(`New order received — ${b.buildNumber} (${b.customer?.name})`))
+    }
+    knownBuildIds.current = new Set(incoming.map(b => b.id))
+    setBuilds(incoming)
     setLoading(false)
   }
 
@@ -337,6 +351,16 @@ export default function Dashboard({ isOperator = true, session = {} }) {
       {showNewBuild && (
         <NewBuildModal onClose={() => setShowNewBuild(false)} onCreated={() => { setShowNewBuild(false); fetchBuilds() }} />
       )}
+
+      {/* Toast notifications */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+        {toasts.map(t => (
+          <div key={t.id} className="bg-cyan text-navy font-semibold px-5 py-3 rounded-xl shadow-lg text-sm flex items-center gap-3 animate-fade-in">
+            <span>📋</span>
+            {t.message}
+          </div>
+        ))}
+      </div>
     </Layout>
   )
 }
