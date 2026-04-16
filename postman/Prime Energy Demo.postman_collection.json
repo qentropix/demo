@@ -70,7 +70,23 @@
           }
         },
         {
-          "name": "4 — Trigger CATL Recall Alert",
+          "name": "4 — New Customer Order (PE-0030)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": "{{base_url}}/api/ingest/new-build",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"buildNumber\": \"PE-0030\",\n  \"customerName\": \"Midwest Logistics Center\",\n  \"voltage\": \"48V\",\n  \"cellConfig\": \"16S4P — LiFePO4\",\n  \"quantity\": 4,\n  \"application\": \"Forklift\",\n  \"nominalCapacity\": \"200Ah\",\n  \"enclosureType\": \"IP54\",\n  \"targetDelivery\": \"2026-08-01\",\n  \"notes\": \"Phase 3 fleet expansion — 4 additional units for new warehouse opening\"\n}"
+            },
+            "description": "Simulates a new customer order arriving — PE-0030 appears live on the dashboard in In Progress status"
+          }
+        },
+        {
+          "name": "5 — Trigger CATL Recall Alert",
           "request": {
             "method": "POST",
             "header": [

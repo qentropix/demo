@@ -13,6 +13,39 @@ function requireApiKey(req, res, next) {
   next()
 }
 
+// POST /api/ingest/new-build
+router.post('/new-build', requireApiKey, async (req, res) => {
+  try {
+    const { buildNumber, customerName, voltage, cellConfig, quantity, application, nominalCapacity, enclosureType, targetDelivery, notes } = req.body
+    if (!buildNumber || !customerName || !voltage || !cellConfig || !quantity) {
+      return res.status(400).json({ error: 'buildNumber, customerName, voltage, cellConfig, quantity are required' })
+    }
+    const customer = await prisma.customer.findFirst({ where: { name: customerName } })
+    if (!customer) return res.status(404).json({ error: `Customer "${customerName}" not found` })
+
+    const build = await prisma.build.create({
+      data: {
+        buildNumber,
+        customerId: customer.id,
+        voltage,
+        cellConfig,
+        quantity: parseInt(quantity),
+        application: application || null,
+        nominalCapacity: nominalCapacity || null,
+        enclosureType: enclosureType || null,
+        targetDelivery: targetDelivery ? new Date(targetDelivery) : null,
+        notes: notes || null,
+        status: 'IN_PROGRESS',
+      },
+      include: { customer: true },
+    })
+    res.json({ success: true, build })
+  } catch (err) {
+    if (err.code === 'P2002') return res.status(409).json({ error: `Build number ${req.body.buildNumber} already exists` })
+    res.status(500).json({ error: err.message })
+  }
+})
+
 // POST /api/ingest/test-result
 router.post('/test-result', requireApiKey, async (req, res) => {
   try {
@@ -74,10 +107,11 @@ router.post('/recall', requireApiKey, async (req, res) => {
 // POST /api/ingest/reset — restore demo to clean seed state
 router.post('/reset', requireApiKey, async (req, res) => {
   try {
-    // Wipe dynamic data
+    // Wipe dynamic data (including any demo-created builds beyond PE-0029)
     await prisma.recall.deleteMany({})
     await prisma.testResult.deleteMany({})
     await prisma.cellLot.deleteMany({})
+    await prisma.build.deleteMany({ where: { buildNumber: { notIn: Object.keys(BUILD_STATUSES) } } })
 
     // Reset all build statuses
     await Promise.all(Object.entries(BUILD_STATUSES).map(([buildNumber, status]) =>
