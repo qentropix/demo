@@ -57,7 +57,9 @@ export default function Dashboard({ isOperator = true, session = {} }) {
 
   async function fetchRecalls() {
     const res = await fetch('/api/recalls', { credentials: 'include' })
-    if (res.ok) setRecalls(Array.isArray(await res.json()) ? await res.clone().json() : [])
+    if (!res.ok) return
+    const data = await res.json()
+    setRecalls(Array.isArray(data) ? data : [])
   }
 
   useEffect(() => {
