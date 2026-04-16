@@ -30,6 +30,9 @@ jobs:
             echo "→ Installing backend dependencies..."
             npm install
 
+            echo "→ Dropping session table before migration..."
+            sudo -u postgres psql -d qentropix_demo -c "DROP TABLE IF EXISTS session;"
+
             echo "→ Running database migrations..."
             npx prisma db push --accept-data-loss
 
@@ -37,15 +40,7 @@ jobs:
             node src/seed.js
 
             echo "→ Recreating session table..."
-            sudo -u postgres psql -d qentropix_demo -c "
-              CREATE TABLE IF NOT EXISTS session (
-                sid varchar NOT NULL,
-                sess json NOT NULL,
-                expire timestamp(6) NOT NULL,
-                CONSTRAINT session_pkey PRIMARY KEY (sid) NOT DEFERRABLE INITIALLY IMMEDIATE
-              );
-              CREATE INDEX IF NOT EXISTS IDX_session_expire ON session (expire);
-            "
+            sudo -u postgres psql -d qentropix_demo -c "CREATE TABLE IF NOT EXISTS session (sid varchar NOT NULL, sess json NOT NULL, expire timestamp(6) NOT NULL, CONSTRAINT session_pkey PRIMARY KEY (sid) NOT DEFERRABLE INITIALLY IMMEDIATE); CREATE INDEX IF NOT EXISTS IDX_session_expire ON session (expire); GRANT ALL PRIVILEGES ON TABLE session TO qentropix;"
 
             echo "→ Building frontend..."
             cd client
