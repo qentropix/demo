@@ -6,7 +6,7 @@ export default function Layout({ children }) {
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
-    window.location.href = '/login'
+    navigate('/login')
   }
 
   return (

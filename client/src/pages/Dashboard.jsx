@@ -57,7 +57,7 @@ export default function Dashboard({ isOperator = true, session = {} }) {
 
   async function fetchBuilds() {
     const res = await fetch('/api/builds', { credentials: 'include' })
-    if (res.status === 401) { window.location.href = '/login'; return }
+    if (res.status === 401) { navigate('/login'); return }
     const data = await res.json()
     const incoming = Array.isArray(data) ? data : []
     if (knownBuildIds.current !== null) {
