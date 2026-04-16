@@ -6,7 +6,7 @@ export default function Layout({ children }) {
 
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
-    navigate('/login')
+    window.location.replace('/primeenergy/login')
   }
 
   return (
