@@ -22,9 +22,9 @@ CUSTOMER LOGINS (read-only, filtered to their builds)
 
 POSTMAN — Demo Triggers (API key: prime-energy-demo-key)
   Collection : postman/Prime Energy Demo.postman_collection.json
-  1. BMS Test PASS        → resolves FAIL on PE-0001
-  2. Capacity Test FAIL   → adds FAIL to PE-0003
-  3. Update Status        → PE-0003 In Progress → Testing
-  4. New Customer Order   → PE-0030 appears live on dashboard (Midwest Phase 3)
-  5. Trigger CATL Recall  → red alert banner, flags PE-0001, PE-0002, PE-0005, PE-0010
+  1. BMS Test PASS        → PE-0001 FAIL resolves live — "issue caught and fixed before delivery"
+  2. Move to Testing      → PE-0003 status flips to Testing — "QC phase begins"
+  3. Capacity Test FAIL   → PE-0003 gets red FAIL — "caught in QC, not in the field"
+  4. New Customer Order   → PE-0030 appears live — "new Midwest order just came in"
+  5. Trigger CATL Recall  → red alert banner across 5 builds — "supplier notice, we know instantly"
   Reset Demo              → restores clean state after meeting (removes PE-0030 too)

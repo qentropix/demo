@@ -38,23 +38,7 @@
           }
         },
         {
-          "name": "2 — Capacity Test FAIL (PE-0003)",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-api-key", "value": "{{api_key}}" }
-            ],
-            "url": "{{base_url}}/api/ingest/test-result",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"buildNumber\": \"PE-0003\",\n  \"testType\": \"Capacity Test\",\n  \"result\": \"FAIL\",\n  \"notes\": \"Unit 3 showing 84% capacity — below 95% threshold. Isolating cell group.\",\n  \"technician\": \"John Koch\"\n}"
-            },
-            "description": "Adds a FAIL to Lakeside Medical build — shows how failures are tracked in real time"
-          }
-        },
-        {
-          "name": "3 — Update Status to Testing (PE-0003)",
+          "name": "2 — Move to Testing (PE-0003)",
           "request": {
             "method": "POST",
             "header": [
@@ -66,7 +50,23 @@
               "mode": "raw",
               "raw": "{\n  \"buildNumber\": \"PE-0003\",\n  \"status\": \"TESTING\"\n}"
             },
-            "description": "Moves Lakeside Medical from In Progress to Testing — shows status updating live on dashboard"
+            "description": "Lakeside Medical build moves from In Progress to Testing — technician starts QC phase"
+          }
+        },
+        {
+          "name": "3 — Capacity Test FAIL (PE-0003)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": "{{base_url}}/api/ingest/test-result",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"buildNumber\": \"PE-0003\",\n  \"testType\": \"Capacity Test\",\n  \"result\": \"FAIL\",\n  \"notes\": \"Unit 3 showing 84% capacity — below 95% threshold. Isolating cell group.\",\n  \"technician\": \"John Koch\"\n}"
+            },
+            "description": "Capacity test fails during QC — shows how Prime Energy catches problems before delivery, not after"
           }
         },
         {
