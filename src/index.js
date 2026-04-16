@@ -54,8 +54,9 @@ app.use('/api/ingest', ingestRoutes)
 
 // Serve React frontend in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(join(__dirname, '../client/dist')))
-  app.get('*', (req, res) => {
+  app.use('/primeenergy', express.static(join(__dirname, '../client/dist')))
+  app.get('/', (req, res) => res.redirect('/primeenergy'))
+  app.get('/primeenergy/*', (req, res) => {
     res.sendFile(join(__dirname, '../client/dist/index.html'))
   })
 }
